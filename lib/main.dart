@@ -41,39 +41,57 @@ class MyHomePage extends StatelessWidget {
         final counterBloc = BlocProvider.of<CounterBloc>(context);
         // final userBloc = context.watch<UserBloc>();
         return Scaffold(
-            floatingActionButton: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      counterBloc.add(CounterIncrementEvent());
-                    },
-                    icon: const Icon(Icons.plus_one)),
-                IconButton(
-                    onPressed: () {
-                      counterBloc.add(CounterDecrementEvent());
-                    },
-                    icon: const Icon(Icons.exposure_minus_1)),
-                IconButton(
-                    onPressed: () {
-                      final userBloc = context.read<UserBloc>();
-                      userBloc.add(
-                          UserGetUsersEvent(context.read<CounterBloc>().state));
-                    },
-                    icon: const Icon(Icons.person)),
-                IconButton(
-                    onPressed: () {
-                      final userBloc = context.read<UserBloc>();
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider.value(
-                        value: userBloc,
-                        child: Job(),
-                      ),));
+            floatingActionButton: BlocConsumer<CounterBloc, int>(
+              listenWhen: (prev, current) => prev > current,
+              listener: (context, state) {
+                if (state == 0) {
+                  Scaffold.of(context).showBottomSheet((context) => Container(
+                        color: Colors.blue,
+                        width: double.infinity,
+                        height: 30,
+                        child: Text('State is 0'),
+                      ));
+                }
+              },
+              builder: (context, state) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('${state}'),
+                  IconButton(
+                      onPressed: () {
+                        counterBloc.add(CounterIncrementEvent());
+                      },
+                      icon: const Icon(Icons.plus_one)),
+                  IconButton(
+                      onPressed: () {
+                        counterBloc.add(CounterDecrementEvent());
+                      },
+                      icon: const Icon(Icons.exposure_minus_1)),
+                  IconButton(
+                      onPressed: () {
+                        final userBloc = context.read<UserBloc>();
+                        userBloc.add(UserGetUsersEvent(
+                            context.read<CounterBloc>().state));
+                      },
+                      icon: const Icon(Icons.person)),
+                  IconButton(
+                      onPressed: () {
+                        final userBloc = context.read<UserBloc>();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: userBloc,
+                                child: Job(),
+                              ),
+                            ));
 
-                      userBloc.add(UserGetUsersJobEvent(
-                          context.read<CounterBloc>().state));
-                    },
-                    icon: const Icon(Icons.work)),
-              ],
+                        userBloc.add(UserGetUsersJobEvent(
+                            context.read<CounterBloc>().state));
+                      },
+                      icon: const Icon(Icons.work)),
+                ],
+              ),
             ),
             body: SafeArea(
               child: Center(
@@ -99,7 +117,6 @@ class MyHomePage extends StatelessWidget {
                         );
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -110,9 +127,6 @@ class MyHomePage extends StatelessWidget {
 }
 
 class Job extends StatelessWidget {
-
-
-
   const Job({Key? key}) : super(key: key);
 
   @override
@@ -126,14 +140,12 @@ class Job extends StatelessWidget {
           final jobs = state.jobs;
           return Column(
             children: [
-              if (state.isLoading)
-                const CircularProgressIndicator(),
-
+              if (state.isLoading) const CircularProgressIndicator(),
               if (jobs.isNotEmpty)
                 ...state.jobs.map((e) => Text(
-                  '${e.id} : ${e.name}',
-                  style: TextStyle(fontSize: 26),
-                )),
+                      '${e.id} : ${e.name}',
+                      style: TextStyle(fontSize: 26),
+                    )),
             ],
           );
         },
@@ -141,4 +153,3 @@ class Job extends StatelessWidget {
     );
   }
 }
-
