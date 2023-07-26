@@ -64,6 +64,11 @@ class MyHomePage extends StatelessWidget {
                 IconButton(
                     onPressed: () {
                       final userBloc = context.read<UserBloc>();
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider.value(
+                        value: userBloc,
+                        child: Job(),
+                      ),));
+
                       userBloc.add(UserGetUsersJobEvent(
                           context.read<CounterBloc>().state));
                     },
@@ -94,29 +99,7 @@ class MyHomePage extends StatelessWidget {
                         );
                       },
                     ),
-                    BlocBuilder<UserBloc, UserState>(
-                      // bloc: userBloc,
-                      builder: (context, state) {
-                        final users = state.users;
-                        final jobs = state.jobs;
-                        return Column(
-                          children: [
-                            if (state.isLoading)
-                              const CircularProgressIndicator(),
-                            // if (users.isNotEmpty)
-                            //   ...state.users.map((e) => Text(
-                            //         '${e.id} : ${e.name}',
-                            //         style: TextStyle(fontSize: 26),
-                            //       )),
-                            if (jobs.isNotEmpty)
-                              ...state.jobs.map((e) => Text(
-                                    '${e.id} : ${e.name}',
-                                    style: TextStyle(fontSize: 26),
-                                  )),
-                          ],
-                        );
-                      },
-                    ),
+
                   ],
                 ),
               ),
@@ -125,3 +108,37 @@ class MyHomePage extends StatelessWidget {
     );
   }
 }
+
+class Job extends StatelessWidget {
+
+
+
+  const Job({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: BlocBuilder<UserBloc, UserState>(
+        // bloc: userBloc,
+        builder: (context, state) {
+          final users = state.users;
+          final jobs = state.jobs;
+          return Column(
+            children: [
+              if (state.isLoading)
+                const CircularProgressIndicator(),
+
+              if (jobs.isNotEmpty)
+                ...state.jobs.map((e) => Text(
+                  '${e.id} : ${e.name}',
+                  style: TextStyle(fontSize: 26),
+                )),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
